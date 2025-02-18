@@ -126,7 +126,7 @@ class TerraformLocalDeploymentTest {
         deployRequest.setCategory(ocl.getCategory());
         deployRequest.setCustomerServiceName("test_deploy");
         deployRequest.setServiceHostingType(ocl.getServiceHostingType());
-        Map<String, Object> serviceRequestProperties = new HashMap<>();
+        Map<String, String> serviceRequestProperties = new HashMap<>();
         ocl.getDeployment()
                 .getVariables()
                 .forEach(

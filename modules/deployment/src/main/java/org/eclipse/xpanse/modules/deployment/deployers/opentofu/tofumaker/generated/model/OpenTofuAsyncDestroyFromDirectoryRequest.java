@@ -39,7 +39,7 @@ public class OpenTofuAsyncDestroyFromDirectoryRequest {
     @jakarta.annotation.Nonnull private String openTofuVersion;
 
     public static final String JSON_PROPERTY_VARIABLES = "variables";
-    @jakarta.annotation.Nonnull private Map<String, Object> variables = new HashMap<>();
+    @jakarta.annotation.Nonnull private Map<String, String> variables = new HashMap<>();
 
     public static final String JSON_PROPERTY_ENV_VARIABLES = "envVariables";
     @jakarta.annotation.Nullable private Map<String, String> envVariables = new HashMap<>();
@@ -100,14 +100,14 @@ public class OpenTofuAsyncDestroyFromDirectoryRequest {
     }
 
     public OpenTofuAsyncDestroyFromDirectoryRequest variables(
-            @jakarta.annotation.Nonnull Map<String, Object> variables) {
+            @jakarta.annotation.Nonnull Map<String, String> variables) {
 
         this.variables = variables;
         return this;
     }
 
     public OpenTofuAsyncDestroyFromDirectoryRequest putVariablesItem(
-            String key, Object variablesItem) {
+            String key, String variablesItem) {
         this.variables.put(key, variablesItem);
         return this;
     }
@@ -120,13 +120,13 @@ public class OpenTofuAsyncDestroyFromDirectoryRequest {
     @jakarta.annotation.Nonnull
     @JsonProperty(JSON_PROPERTY_VARIABLES)
     @JsonInclude(value = JsonInclude.Include.ALWAYS)
-    public Map<String, Object> getVariables() {
+    public Map<String, String> getVariables() {
         return variables;
     }
 
     @JsonProperty(JSON_PROPERTY_VARIABLES)
     @JsonInclude(value = JsonInclude.Include.ALWAYS)
-    public void setVariables(@jakarta.annotation.Nonnull Map<String, Object> variables) {
+    public void setVariables(@jakarta.annotation.Nonnull Map<String, String> variables) {
         this.variables = variables;
     }
 

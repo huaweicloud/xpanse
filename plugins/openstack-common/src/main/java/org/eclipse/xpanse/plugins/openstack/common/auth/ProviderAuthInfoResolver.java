@@ -139,18 +139,16 @@ public class ProviderAuthInfoResolver {
      */
     private String getAuthUrlFromDeploymentVariables(
             Csp csp, UUID serviceId, UUID serviceTemplateId) {
-        Object defaultAuthUrl = null;
+        String defaultAuthUrl = null;
         if (Objects.nonNull(serviceId)) {
             ServiceDeploymentEntity serviceDeploymentEntity =
                     serviceDeploymentStorage.findServiceDeploymentById(serviceId);
             ServiceTemplateEntity serviceTemplateEntity =
                     serviceTemplateStorage.getServiceTemplateById(
                             serviceDeploymentEntity.getServiceTemplateId());
-            Map<String, Object> serviceRequestVariables =
+            Map<String, String> serviceRequestVariables =
                     this.deployEnvironments.getAllDeploymentVariablesForService(
-                            serviceDeploymentEntity
-                                    .getDeployRequest()
-                                    .getServiceRequestProperties(),
+                            serviceDeploymentEntity.getInputProperties(),
                             serviceTemplateEntity.getOcl().getDeployment().getVariables(),
                             serviceDeploymentEntity.getFlavor(),
                             serviceTemplateEntity.getOcl());
@@ -160,7 +158,7 @@ public class ProviderAuthInfoResolver {
         if (Objects.nonNull(serviceTemplateId)) {
             ServiceTemplateEntity serviceTemplateEntity =
                     serviceTemplateStorage.getServiceTemplateById(serviceTemplateId);
-            Map<String, Object> getServiceTemplateVariables =
+            Map<String, String> getServiceTemplateVariables =
                     this.deployEnvironments.getFixedVariablesFromTemplate(serviceTemplateEntity);
             defaultAuthUrl =
                     getServiceTemplateVariables.get(
@@ -169,7 +167,7 @@ public class ProviderAuthInfoResolver {
         if (Objects.isNull(defaultAuthUrl)) {
             return this.environment.getProperty(getAuthUrlKeyByCsp(csp));
         } else {
-            return (String) defaultAuthUrl;
+            return defaultAuthUrl;
         }
     }
 
@@ -183,7 +181,7 @@ public class ProviderAuthInfoResolver {
                 Objects.isNull(RetrySynchronizationManager.getContext())
                         ? 0
                         : RetrySynchronizationManager.getContext().getRetryCount();
-        log.error(ex.getMessage() + System.lineSeparator() + "Retry count:" + retryCount);
+        log.error("{}{}Retry count:{}", ex.getMessage(), System.lineSeparator(), retryCount);
         if (ex instanceof ClientAuthenticationFailedException) {
             throw new ClientAuthenticationFailedException(ex.getMessage());
         }

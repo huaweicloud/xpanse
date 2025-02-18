@@ -844,7 +844,7 @@ class ServiceDeployerApiTest extends ApisTestCommon {
         ModifyRequest modifyRequest = new ModifyRequest();
         modifyRequest.setFlavor(
                 serviceTemplate.getFlavors().getServiceFlavors().getLast().getName());
-        Map<String, Object> serviceRequestProperties = new HashMap<>();
+        Map<String, String> serviceRequestProperties = new HashMap<>();
         serviceRequestProperties.put("admin_passwd", "2222222222@Qq");
         modifyRequest.setServiceRequestProperties(serviceRequestProperties);
         // Run the test

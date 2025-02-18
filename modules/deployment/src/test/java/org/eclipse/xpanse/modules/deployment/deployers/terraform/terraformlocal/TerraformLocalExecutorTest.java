@@ -43,7 +43,7 @@ class TerraformLocalExecutorTest {
 
     private static String workspace = "";
     @Mock private Map<String, String> mockEnv;
-    @Mock private Map<String, Object> mockVariables;
+    @Mock private Map<String, String> mockVariables;
     @InjectMocks private TerraformLocalExecutor terraformLocalExecutor;
     @InjectMocks private DeploymentScriptsHelper scriptsHelper;
 

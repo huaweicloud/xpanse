@@ -225,14 +225,14 @@ public class TerraformLocalDeployment implements Deployer {
     private TerraformLocalExecutor getExecutorForDeployTask(
             DeployTask task, String workspace, boolean isDeployTask) {
         Map<String, String> envVariables = this.deployEnvironments.getEnvironmentVariables(task);
-        Map<String, Object> inputVariables =
+        Map<String, String> inputVariables =
                 this.deployEnvironments.getInputVariables(task, isDeployTask);
         return getExecutor(envVariables, inputVariables, workspace, task.getOcl().getDeployment());
     }
 
     private TerraformLocalExecutor getExecutor(
             Map<String, String> envVariables,
-            Map<String, Object> inputVariables,
+            Map<String, String> inputVariables,
             String workspace,
             Deployment deployment) {
         if (terraformLocalConfig.isDebugEnabled()) {

@@ -12,7 +12,9 @@ import jakarta.annotation.Resource;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +35,7 @@ import org.eclipse.xpanse.modules.models.response.ErrorType;
 import org.eclipse.xpanse.modules.models.service.deployment.DeployRequest;
 import org.eclipse.xpanse.modules.models.service.deployment.DeployResource;
 import org.eclipse.xpanse.modules.models.service.deployment.DeployResult;
+import org.eclipse.xpanse.modules.models.service.enums.Handler;
 import org.eclipse.xpanse.modules.models.service.enums.ServiceDeploymentState;
 import org.eclipse.xpanse.modules.models.service.enums.TaskStatus;
 import org.eclipse.xpanse.modules.models.service.order.enums.ServiceOrderType;
@@ -42,6 +45,7 @@ import org.eclipse.xpanse.modules.orchestrator.deployment.DeployTask;
 import org.eclipse.xpanse.modules.orchestrator.deployment.Deployer;
 import org.eclipse.xpanse.modules.workflow.utils.WorkflowUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
@@ -57,9 +61,10 @@ public class DeployResultManager {
     @Resource private ResourceHandlerManager resourceHandlerManager;
     @Resource private WorkflowUtils workflowUtils;
     @Resource private SensitiveDataHandler sensitiveDataHandler;
-    @Resource private DeployServiceEntityConverter deployServiceEntityConverter;
+    @Resource private ServiceDeploymentEntityConverter serviceDeploymentEntityConverter;
     @Resource private ServiceOrderManager serviceOrderManager;
     @Resource private DeployerKindManager deployerKindManager;
+    @Autowired private ServiceDeploymentEntityHandler serviceDeploymentEntityHandler;
 
     /**
      * Get failed deploy result.
@@ -88,7 +93,7 @@ public class DeployResultManager {
      *
      * @param deployResult DeployResult.
      */
-    public void updateServiceWithDeployResult(DeployResult deployResult) {
+    public void updateServiceWithDeployResult(DeployResult deployResult, Handler handler) {
         if (Objects.isNull(deployResult)
                 || Objects.isNull(deployResult.getOrderId())
                 || Objects.isNull(deployResult.getIsTaskSuccessful())) {
@@ -112,12 +117,12 @@ public class DeployResultManager {
                     storedServiceOrder.getOrderId(), deployResult);
             if (Objects.nonNull(deployResult.getTfStateContent())) {
                 DeployTask rollbackTask =
-                        deployServiceEntityConverter.getDeployTaskByStoredService(
+                        serviceDeploymentEntityConverter.getDeployTaskByStoredService(
                                 ServiceOrderType.ROLLBACK, updatedServiceDeployment);
                 rollbackTask.setParentOrderId(orderId);
                 rollbackTask.setOriginalServiceId(storedServiceOrder.getOriginalServiceId());
                 rollbackTask.setWorkflowId(storedServiceOrder.getWorkflowId());
-                rollbackOnDeploymentFailure(rollbackTask, updatedServiceDeployment);
+                rollbackOnDeploymentFailure(rollbackTask, updatedServiceDeployment, handler);
                 return;
             }
         }
@@ -126,7 +131,9 @@ public class DeployResultManager {
 
     /** Perform rollback when deployment fails and destroy the created resources. */
     public void rollbackOnDeploymentFailure(
-            DeployTask rollbackTask, ServiceDeploymentEntity serviceDeploymentEntity) {
+            DeployTask rollbackTask,
+            ServiceDeploymentEntity serviceDeploymentEntity,
+            Handler handler) {
         DeployResult rollbackResult;
         RuntimeException exception = null;
         log.info("Performing rollback of already provisioned resources.");
@@ -134,7 +141,7 @@ public class DeployResultManager {
         rollbackTask.setTaskType(ServiceOrderType.ROLLBACK);
         ServiceOrderEntity serviceOrderEntity =
                 serviceOrderManager.storeNewServiceOrderEntity(
-                        rollbackTask, serviceDeploymentEntity);
+                        rollbackTask, serviceDeploymentEntity, handler);
         Deployer deployer =
                 deployerKindManager.getDeployment(
                         rollbackTask.getOcl().getDeployment().getDeployerTool().getKind());
@@ -155,7 +162,7 @@ public class DeployResultManager {
             exception = e;
             rollbackResult = getFailedDeployResult(rollbackTask, exception);
         }
-        updateServiceWithDeployResult(rollbackResult);
+        updateServiceWithDeployResult(rollbackResult, handler);
         if (Objects.nonNull(exception)) {
             throw exception;
         }
@@ -187,19 +194,19 @@ public class DeployResultManager {
                 serviceDeploymentToUpdate.setServiceDeploymentState(deploymentState);
             }
         }
-        if (StringUtils.isNotBlank(deployResult.getMessage())) {
-            serviceDeploymentToUpdate.setResultMessage(deployResult.getMessage());
-        } else {
-            // When rollback successfully, the result message should be the previous error message.
-            if (isTaskSuccessful && taskType != ServiceOrderType.ROLLBACK) {
-                serviceDeploymentToUpdate.setResultMessage(null);
-            }
-        }
         if (deploymentState == ServiceDeploymentState.MODIFICATION_SUCCESSFUL) {
-            DeployRequest modifyRequest = serviceDeploymentToUpdate.getDeployRequest();
+            DeployRequest modifyRequest =
+                    serviceDeploymentEntityConverter.getDeployRequestByStoredService(
+                            serviceDeployment);
             serviceDeploymentToUpdate.setFlavor(modifyRequest.getFlavor());
             serviceDeploymentToUpdate.setCustomerServiceName(
                     modifyRequest.getCustomerServiceName());
+            serviceDeploymentToUpdate.setInputProperties(
+                    modifyRequest.getServiceRequestProperties());
+            serviceDeploymentToUpdate.setAvailabilityZones(modifyRequest.getAvailabilityZones());
+            serviceDeploymentToUpdate.setServiceHostingType(modifyRequest.getServiceHostingType());
+            serviceDeploymentToUpdate.setRegion(modifyRequest.getRegion());
+            serviceDeploymentToUpdate.setBillingMode(modifyRequest.getBillingMode());
         }
         ServiceTemplateEntity serviceTemplateEntity =
                 serviceTemplateStorage.getServiceTemplateById(
@@ -285,7 +292,7 @@ public class DeployResultManager {
             ServiceDeploymentState state, ServiceDeploymentEntity serviceDeploymentEntity) {
         if (state == ServiceDeploymentState.DEPLOY_SUCCESS) {
             ServiceConfigurationEntity serviceConfigurationEntity =
-                    deployServiceEntityConverter.getInitialServiceConfiguration(
+                    serviceDeploymentEntityConverter.getInitialServiceConfiguration(
                             serviceDeploymentEntity);
             serviceDeploymentEntity.setServiceConfiguration(serviceConfigurationEntity);
         }
@@ -404,32 +411,42 @@ public class DeployResultManager {
                 ServiceOrderEntity parentOrder =
                         serviceOrderStorage.getEntityById(serviceOrder.getParentOrderId());
                 serviceOrderManager.updateOrderWithDeployResult(parentOrder, deployResult);
+
                 if (parentOrder.getTaskType() == ServiceOrderType.PORT) {
+                    Map<String, Object> variables = new HashMap<>();
+                    variables.put(
+                            ServicePortingConstants.RESULT_MESSAGE, deployResult.getMessage());
                     if (serviceOrder.getTaskType() == ServiceOrderType.DEPLOY
                             || serviceOrder.getTaskType() == ServiceOrderType.RETRY) {
-                        workflowUtils.completeReceiveTask(
+                        workflowUtils.completeReceiveTaskWithVariables(
                                 processInstanceId,
                                 ServicePortingConstants
-                                        .SERVICE_PORTING_DEPLOY_RECEIVE_TASK_ACTIVITY_ID);
+                                        .SERVICE_PORTING_DEPLOY_RECEIVE_TASK_ACTIVITY_ID,
+                                variables);
                     }
                     if (serviceOrder.getTaskType() == ServiceOrderType.DESTROY) {
-                        workflowUtils.completeReceiveTask(
+                        workflowUtils.completeReceiveTaskWithVariables(
                                 processInstanceId,
                                 ServicePortingConstants
-                                        .SERVICE_PORTING_DESTROY_RECEIVE_TASK_ACTIVITY_ID);
+                                        .SERVICE_PORTING_DESTROY_RECEIVE_TASK_ACTIVITY_ID,
+                                variables);
                     }
                 }
                 if (parentOrder.getTaskType() == ServiceOrderType.RECREATE) {
+                    Map<String, Object> variables = new HashMap<>();
+                    variables.put(RecreateConstants.RESULT_MESSAGE, deployResult.getMessage());
                     if (serviceOrder.getTaskType() == ServiceOrderType.DEPLOY
                             || serviceOrder.getTaskType() == ServiceOrderType.RETRY) {
-                        workflowUtils.completeReceiveTask(
+                        workflowUtils.completeReceiveTaskWithVariables(
                                 processInstanceId,
-                                RecreateConstants.RECREATE_DEPLOY_RECEIVE_TASK_ACTIVITY_ID);
+                                RecreateConstants.RECREATE_DEPLOY_RECEIVE_TASK_ACTIVITY_ID,
+                                variables);
                     }
                     if (serviceOrder.getTaskType() == ServiceOrderType.DESTROY) {
-                        workflowUtils.completeReceiveTask(
+                        workflowUtils.completeReceiveTaskWithVariables(
                                 processInstanceId,
-                                RecreateConstants.RECREATE_DESTROY_RECEIVE_TASK_ACTIVITY_ID);
+                                RecreateConstants.RECREATE_DESTROY_RECEIVE_TASK_ACTIVITY_ID,
+                                variables);
                     }
                 }
             } catch (Exception e) {

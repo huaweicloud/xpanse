@@ -79,7 +79,7 @@ class DeployEnvironmentsTest {
 
     @BeforeEach
     void setUp() {
-        Map<String, Object> serviceRequestProperties = new HashMap<>();
+        Map<String, String> serviceRequestProperties = new HashMap<>();
         serviceRequestProperties.put("name", "value");
         serviceRequestProperties.put("key2", "value2");
         serviceRequestProperties.put("example", null);
@@ -176,7 +176,7 @@ class DeployEnvironmentsTest {
         Map<String, String> expectedResult =
                 Map.ofEntries(Map.entry("region", "cn-north-4"), Map.entry("key", "value"));
 
-        Map<String, Object> result = deployEnvironmentsUnderTest.getInputVariables(task, true);
+        Map<String, String> result = deployEnvironmentsUnderTest.getInputVariables(task, true);
 
         // Verify the results
         assertEquals(result, expectedResult);
@@ -209,7 +209,7 @@ class DeployEnvironmentsTest {
         expectedResult.put("name", "value");
         expectedResult.put("region", regionName);
 
-        final Map<String, Object> result =
+        final Map<String, String> result =
                 deployEnvironmentsUnderTest.getInputVariables(task, true);
 
         // Verify the results
@@ -304,7 +304,7 @@ class DeployEnvironmentsTest {
         region.setSite(siteName);
         deployRequest.setRegion(region);
 
-        Map<String, Object> property = new HashMap<>();
+        Map<String, String> property = new HashMap<>();
         property.put("secgroup_id", "1234567890");
         deployRequest.setServiceRequestProperties(property);
 

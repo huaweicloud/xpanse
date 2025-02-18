@@ -39,9 +39,9 @@ public class AdminApi extends BaseApi {
      *
      * <p><b>400</b> - Bad Request
      *
-     * <p><b>502</b> - Bad Gateway
-     *
      * <p><b>422</b> - Unprocessable Entity
+     *
+     * <p><b>502</b> - Bad Gateway
      *
      * <p><b>503</b> - Service Unavailable
      *
@@ -59,9 +59,9 @@ public class AdminApi extends BaseApi {
      *
      * <p><b>400</b> - Bad Request
      *
-     * <p><b>502</b> - Bad Gateway
-     *
      * <p><b>422</b> - Unprocessable Entity
+     *
+     * <p><b>502</b> - Bad Gateway
      *
      * <p><b>503</b> - Service Unavailable
      *

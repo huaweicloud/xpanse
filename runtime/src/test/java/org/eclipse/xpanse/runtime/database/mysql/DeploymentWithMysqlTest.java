@@ -187,7 +187,7 @@ class DeploymentWithMysqlTest extends AbstractMysqlIntegrationTest {
         deployRequestBase.setServiceHostingType(serviceTemplate.getServiceHostingType());
         deployRequestBase.setBillingMode(serviceTemplate.getBilling().getBillingModes().getFirst());
 
-        Map<String, Object> serviceRequestProperties = new HashMap<>();
+        Map<String, String> serviceRequestProperties = new HashMap<>();
         serviceRequestProperties.put("admin_passwd", "111111111@Qq");
         deployRequestBase.setServiceRequestProperties(serviceRequestProperties);
 
@@ -225,7 +225,7 @@ class DeploymentWithMysqlTest extends AbstractMysqlIntegrationTest {
         ModifyRequest modifyRequest = new ModifyRequest();
         modifyRequest.setFlavor(
                 serviceTemplate.getFlavors().getServiceFlavors().getLast().getName());
-        Map<String, Object> serviceRequestProperties = new HashMap<>();
+        Map<String, String> serviceRequestProperties = new HashMap<>();
         serviceRequestProperties.put("admin_passwd", "2222222222@Qq");
         modifyRequest.setServiceRequestProperties(serviceRequestProperties);
         // Run the test
