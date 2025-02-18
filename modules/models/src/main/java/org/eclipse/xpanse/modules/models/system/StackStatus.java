@@ -13,7 +13,7 @@ import org.eclipse.xpanse.modules.models.system.enums.HealthStatus;
 
 /** Describes health status of the system. */
 @Data
-public class SystemStatus {
+public class StackStatus {
 
     @NotNull
     @Schema(description = "The health status of Xpanse api service.")
