@@ -92,7 +92,7 @@ public class DeployEnvironments {
      */
     private Map<String, String> getEnv(
             Csp csp,
-            Map<String, Object> serviceRequestProperties,
+            Map<String, String> serviceRequestProperties,
             List<DeployVariable> deployVariables) {
         Map<String, String> variables = new HashMap<>();
         for (DeployVariable variable : deployVariables) {
@@ -105,10 +105,8 @@ public class DeployEnvironments {
                                             .toValue()
                                             .equals(variable.getSensitiveScope().toValue())
                                     ? secretsManager.decrypt(
-                                            serviceRequestProperties
-                                                    .get(variable.getName())
-                                                    .toString())
-                                    : serviceRequestProperties.get(variable.getName()).toString());
+                                            serviceRequestProperties.get(variable.getName()))
+                                    : serviceRequestProperties.get(variable.getName()));
                 } else {
                     variables.put(variable.getName(), System.getenv(variable.getName()));
                 }
@@ -202,9 +200,9 @@ public class DeployEnvironments {
      *
      * @param task the DeployTask.
      */
-    private Map<String, Object> getVariablesFromDeployTask(
+    private Map<String, String> getVariablesFromDeployTask(
             DeployTask task, boolean isDeployRequest) {
-        Map<String, Object> variables =
+        Map<String, String> variables =
                 getVariables(
                         task.getDeployRequest().getServiceRequestProperties(),
                         task.getOcl().getDeployment().getVariables(),
@@ -221,11 +219,11 @@ public class DeployEnvironments {
      * @param isDeployRequest defines if the variables are required for deploying the service. False
      *     if it is for any other use cases.
      */
-    private Map<String, Object> getVariables(
-            Map<String, Object> serviceRequestProperties,
+    private Map<String, String> getVariables(
+            Map<String, String> serviceRequestProperties,
             List<DeployVariable> deployVariables,
             boolean isDeployRequest) {
-        Map<String, Object> variables = new HashMap<>();
+        Map<String, String> variables = new HashMap<>();
         for (DeployVariable variable : deployVariables) {
             if (variable.getKind() == DeployVariableKind.VARIABLE) {
                 if (serviceRequestProperties.containsKey(variable.getName())
@@ -233,11 +231,8 @@ public class DeployEnvironments {
                     variables.put(
                             variable.getName(),
                             (variable.getSensitiveScope() != SensitiveScope.NONE && isDeployRequest)
-                                    ? secretsManager.decodeBackToOriginalType(
-                                            variable.getDataType(),
-                                            serviceRequestProperties
-                                                    .get(variable.getName())
-                                                    .toString())
+                                    ? secretsManager.decrypt(
+                                            serviceRequestProperties.get(variable.getName()))
                                     : serviceRequestProperties.get(variable.getName()));
                 } else {
                     variables.put(variable.getName(), System.getenv(variable.getName()));
@@ -311,13 +306,13 @@ public class DeployEnvironments {
      * @param requestedFlavor Flavor of the service ordered.
      * @param ocl OCL of the requested service template.
      */
-    public Map<String, Object> getAllDeploymentVariablesForService(
-            Map<String, Object> serviceRequestProperties,
+    public Map<String, String> getAllDeploymentVariablesForService(
+            Map<String, String> serviceRequestProperties,
             List<DeployVariable> deployVariables,
             String requestedFlavor,
             Ocl ocl) {
         Csp csp = ocl.getCloudServiceProvider().getName();
-        Map<String, Object> allVariables = new HashMap<>();
+        Map<String, String> allVariables = new HashMap<>();
         allVariables.putAll(getVariables(serviceRequestProperties, deployVariables, false));
         allVariables.putAll(getEnv(csp, serviceRequestProperties, deployVariables));
         allVariables.putAll(getFlavorVariables(ocl, requestedFlavor));
@@ -334,8 +329,8 @@ public class DeployEnvironments {
     }
 
     /** Builds a map of all variables that must be passed to the deployer. */
-    public Map<String, Object> getInputVariables(DeployTask deployTask, boolean isDeployRequest) {
-        Map<String, Object> inputVariables = new HashMap<>();
+    public Map<String, String> getInputVariables(DeployTask deployTask, boolean isDeployRequest) {
+        Map<String, String> inputVariables = new HashMap<>();
         inputVariables.putAll(getVariablesFromDeployTask(deployTask, isDeployRequest));
         inputVariables.putAll(getFlavorVariables(deployTask));
         inputVariables.putAll(getAvailabilityZoneVariables(deployTask));
@@ -344,9 +339,9 @@ public class DeployEnvironments {
     }
 
     /** Returns the map of fixed variables in a service template. */
-    public Map<String, Object> getFixedVariablesFromTemplate(
+    public Map<String, String> getFixedVariablesFromTemplate(
             ServiceTemplateEntity serviceTemplateEntity) {
-        Map<String, Object> fixedVariables = new HashMap<>();
+        Map<String, String> fixedVariables = new HashMap<>();
         for (DeployVariable variable :
                 serviceTemplateEntity.getOcl().getDeployment().getVariables()) {
             if (variable.getKind() == DeployVariableKind.FIX_VARIABLE) {

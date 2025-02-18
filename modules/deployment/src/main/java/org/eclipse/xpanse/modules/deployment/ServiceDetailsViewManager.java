@@ -58,8 +58,7 @@ public class ServiceDetailsViewManager {
     public DeployedServiceDetails getServiceDetailsByIdForIsv(UUID id) {
         ServiceDeploymentEntity serviceDeploymentEntity =
                 serviceDeploymentEntityHandler.getServiceDeploymentEntity(id);
-        ServiceHostingType serviceHostingType =
-                serviceDeploymentEntity.getDeployRequest().getServiceHostingType();
+        ServiceHostingType serviceHostingType = serviceDeploymentEntity.getServiceHostingType();
         if (ServiceHostingType.SERVICE_VENDOR != serviceHostingType) {
             String errorMsg = String.format("the details of Service with id %s no accessible", id);
             log.error(errorMsg);
@@ -164,8 +163,7 @@ public class ServiceDetailsViewManager {
             log.error(errorMsg);
             throw new AccessDeniedException(errorMsg);
         }
-        ServiceHostingType serviceHostingType =
-                serviceDeploymentEntity.getDeployRequest().getServiceHostingType();
+        ServiceHostingType serviceHostingType = serviceDeploymentEntity.getServiceHostingType();
         if (ServiceHostingType.SELF != serviceHostingType) {
             String errorMsg =
                     String.format(
@@ -200,8 +198,7 @@ public class ServiceDetailsViewManager {
             log.error(errorMsg);
             throw new AccessDeniedException(errorMsg);
         }
-        ServiceHostingType serviceHostingType =
-                serviceDeploymentEntity.getDeployRequest().getServiceHostingType();
+        ServiceHostingType serviceHostingType = serviceDeploymentEntity.getServiceHostingType();
         if (ServiceHostingType.SERVICE_VENDOR != serviceHostingType) {
             String errorMsg =
                     String.format(

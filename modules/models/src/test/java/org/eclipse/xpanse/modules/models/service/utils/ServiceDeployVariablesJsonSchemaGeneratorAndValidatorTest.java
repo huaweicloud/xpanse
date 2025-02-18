@@ -55,7 +55,7 @@ class ServiceDeployVariablesJsonSchemaGeneratorAndValidatorTest {
         JsonObjectSchema jsonObjectSchema =
                 serviceDeployVariablesJsonSchemaGenerator.buildDeployVariableJsonSchema(variables);
 
-        Map<String, Object> deployProperty = new HashMap<>();
+        Map<String, String> deployProperty = new HashMap<>();
         deployProperty.put("admin_passwd", "123456@Qq");
 
         assertDoesNotThrow(
@@ -70,13 +70,13 @@ class ServiceDeployVariablesJsonSchemaGeneratorAndValidatorTest {
         JsonObjectSchema jsonObjectSchema =
                 serviceDeployVariablesJsonSchemaGenerator.buildDeployVariableJsonSchema(variables);
 
-        Map<String, Object> validateMinLengthPro = new HashMap<>();
+        Map<String, String> validateMinLengthPro = new HashMap<>();
         validateMinLengthPro.put("admin_passwd", "123456");
 
-        Map<String, Object> validateMaxLengthPro = new HashMap<>();
+        Map<String, String> validateMaxLengthPro = new HashMap<>();
         validateMaxLengthPro.put("admin_passwd", "1234566778980129342543654756768");
 
-        Map<String, Object> validatePatternPro = new HashMap<>();
+        Map<String, String> validatePatternPro = new HashMap<>();
         validatePatternPro.put("admin_passwd", "12335435@Q");
 
         assertThrows(
@@ -108,7 +108,7 @@ class ServiceDeployVariablesJsonSchemaGeneratorAndValidatorTest {
         JsonObjectSchema jsonObjectSchema =
                 serviceDeployVariablesJsonSchemaGenerator.buildDeployVariableJsonSchema(variables);
 
-        Map<String, Object> validateRequiredPro = new HashMap<>();
+        Map<String, String> validateRequiredPro = new HashMap<>();
         validateRequiredPro.put("admin_passwd", "123456@Qq");
         validateRequiredPro.put("vpc_name", "123456");
         validateRequiredPro.put("subnet_name", "123456");
@@ -130,7 +130,7 @@ class ServiceDeployVariablesJsonSchemaGeneratorAndValidatorTest {
         JsonObjectSchema jsonObjectSchema =
                 serviceDeployVariablesJsonSchemaGenerator.buildDeployVariableJsonSchema(variables);
 
-        Map<String, Object> validateRequiredPro = new HashMap<>();
+        Map<String, String> validateRequiredPro = new HashMap<>();
         validateRequiredPro.put("admin_passwd", "123456@Qq");
 
         assertThrows(
@@ -155,7 +155,7 @@ class ServiceDeployVariablesJsonSchemaGeneratorAndValidatorTest {
 
     @Test
     void throwExceptionWhenValueSchemaIsInvalid() {
-        variables.get(0).getValueSchema().put("enums", List.of(1, 2, 3));
+        variables.getFirst().getValueSchema().put("enums", List.of(1, 2, 3));
         assertThrows(
                 InvalidValueSchemaException.class,
                 () -> {

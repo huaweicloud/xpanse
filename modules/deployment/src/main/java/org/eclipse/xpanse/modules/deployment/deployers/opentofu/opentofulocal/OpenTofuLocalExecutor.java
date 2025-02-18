@@ -35,7 +35,7 @@ public class OpenTofuLocalExecutor {
     @Getter private final String executorPath;
     @Getter private final String taskWorkspace;
     private final Map<String, String> env;
-    private final Map<String, Object> variables;
+    private final Map<String, String> variables;
 
     /**
      * Constructor for openTofuExecutor.
@@ -48,7 +48,7 @@ public class OpenTofuLocalExecutor {
     OpenTofuLocalExecutor(
             String executorPath,
             Map<String, String> env,
-            Map<String, Object> variables,
+            Map<String, String> variables,
             String taskWorkspace) {
         this.executorPath = executorPath;
         this.env = env;
@@ -126,7 +126,7 @@ public class OpenTofuLocalExecutor {
         return systemCmdResult;
     }
 
-    private void createVariablesFile(String taskWorkspace, Map<String, Object> variables) {
+    private void createVariablesFile(String taskWorkspace, Map<String, String> variables) {
         try {
             File variablesFile = new File(taskWorkspace, TF_VARS_FILE_NAME);
             log.info("creating variables file");

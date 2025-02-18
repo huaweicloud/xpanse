@@ -223,14 +223,14 @@ public class OpenTofuLocalDeployment implements Deployer {
     private OpenTofuLocalExecutor getExecutorForDeployTask(
             DeployTask task, String workspace, boolean isDeployTask) {
         Map<String, String> envVariables = this.deployEnvironments.getEnvironmentVariables(task);
-        Map<String, Object> inputVariables =
+        Map<String, String> inputVariables =
                 this.deployEnvironments.getInputVariables(task, isDeployTask);
         return getExecutor(envVariables, inputVariables, workspace, task.getOcl().getDeployment());
     }
 
     private OpenTofuLocalExecutor getExecutor(
             Map<String, String> envVariables,
-            Map<String, Object> inputVariables,
+            Map<String, String> inputVariables,
             String workspace,
             Deployment deployment) {
         if (openTofuLocalConfig.isDebugEnabled()) {

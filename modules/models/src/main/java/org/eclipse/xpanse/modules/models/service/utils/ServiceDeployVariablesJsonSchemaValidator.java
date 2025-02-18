@@ -41,7 +41,7 @@ public class ServiceDeployVariablesJsonSchemaValidator {
      */
     public void validateDeployVariables(
             List<DeployVariable> deployVariables,
-            Map<String, Object> deployProperty,
+            Map<String, String> deployProperty,
             JsonObjectSchema jsonObjectSchema) {
 
         if (CollectionUtils.isEmpty(deployVariables) || Objects.isNull(jsonObjectSchema)) {

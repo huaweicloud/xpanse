@@ -16,7 +16,7 @@ class ModifyRequestTest {
     private final String userId = "userId";
     private final String customerServiceName = "customerService";
     private final String flavor = "flavor";
-    @Mock private Map<String, Object> mockServiceRequestProperties;
+    @Mock private Map<String, String> mockServiceRequestProperties;
 
     private ModifyRequest test;
 

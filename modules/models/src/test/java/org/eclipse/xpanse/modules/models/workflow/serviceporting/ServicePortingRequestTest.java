@@ -30,7 +30,7 @@ class ServicePortingRequestTest {
     private final Csp csp = Csp.HUAWEI_CLOUD;
     private final String flavor = "flavor";
     private final ServiceHostingType serviceHostingType = ServiceHostingType.SELF;
-    private final Map<String, Object> properties = Collections.singletonMap("key", "value");
+    private final Map<String, String> properties = Collections.singletonMap("key", "value");
     private final Map<String, String> availabilityZones = Collections.singletonMap("key", "value");
     private final BillingMode billingMode = BillingMode.FIXED;
     private ServicePortingRequest request;

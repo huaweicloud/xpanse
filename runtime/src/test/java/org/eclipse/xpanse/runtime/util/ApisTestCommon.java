@@ -520,7 +520,7 @@ public class ApisTestCommon {
         deployRequest.setServiceHostingType(serviceTemplate.getServiceHostingType());
         deployRequest.setBillingMode(serviceTemplate.getBilling().getBillingModes().getFirst());
 
-        Map<String, Object> serviceRequestProperties = new HashMap<>();
+        Map<String, String> serviceRequestProperties = new HashMap<>();
         serviceTemplate
                 .getDeployment()
                 .getVariables()

@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 import lombok.Data;
@@ -22,6 +23,9 @@ import org.eclipse.xpanse.modules.models.servicetemplate.enums.ServiceHostingTyp
 /** Request body for service deployment. */
 @Data
 public class DeployRequestBase implements Serializable {
+
+    @Serial private static final long serialVersionUID = -4803796371373728321L;
+
     /** The id of the user who ordered the Service. */
     @Hidden private String userId;
 
@@ -76,7 +80,7 @@ public class DeployRequestBase implements Serializable {
 
     /** The property of the Service. */
     @Schema(description = "The properties for the requested service")
-    private Map<String, Object> serviceRequestProperties;
+    private Map<String, String> serviceRequestProperties;
 
     @Schema(description = "The availability zones to deploy the service instance.")
     private Map<String, String> availabilityZones;

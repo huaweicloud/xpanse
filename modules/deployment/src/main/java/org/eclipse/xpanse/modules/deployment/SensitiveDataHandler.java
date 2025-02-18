@@ -35,8 +35,7 @@ public class SensitiveDataHandler {
      */
     public void maskSensitiveFields(ServiceDeploymentEntity serviceDeploymentEntity) {
         log.debug("masking sensitive input data after deployment");
-        if (Objects.nonNull(
-                serviceDeploymentEntity.getDeployRequest().getServiceRequestProperties())) {
+        if (Objects.nonNull(serviceDeploymentEntity.getInputProperties())) {
             ServiceTemplateEntity serviceTemplateEntity =
                     serviceTemplateStorage.getServiceTemplateById(
                             serviceDeploymentEntity.getServiceTemplateId());
@@ -44,12 +43,10 @@ public class SensitiveDataHandler {
                     serviceTemplateEntity.getOcl().getDeployment().getVariables()) {
                 if (deployVariable.getSensitiveScope() != SensitiveScope.NONE
                         && (serviceDeploymentEntity
-                                .getDeployRequest()
-                                .getServiceRequestProperties()
+                                .getInputProperties()
                                 .containsKey(deployVariable.getName()))) {
                     serviceDeploymentEntity
-                            .getDeployRequest()
-                            .getServiceRequestProperties()
+                            .getInputProperties()
                             .put(deployVariable.getName(), "********");
                 }
             }
@@ -63,7 +60,7 @@ public class SensitiveDataHandler {
      * @param serviceRequestProperties request properties sent by customer.
      */
     public void encodeDeployVariable(
-            ServiceTemplateEntity serviceTemplate, Map<String, Object> serviceRequestProperties) {
+            ServiceTemplateEntity serviceTemplate, Map<String, String> serviceRequestProperties) {
         if (Objects.isNull(serviceTemplate.getOcl().getDeployment())
                 || CollectionUtils.isEmpty(serviceTemplate.getOcl().getDeployment().getVariables())
                 || Objects.isNull(serviceRequestProperties)) {

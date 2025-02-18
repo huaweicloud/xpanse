@@ -35,5 +35,5 @@ public class ModifyRequest implements Serializable {
 
     /** The property of the Service. */
     @Schema(description = "The properties for the requested service")
-    private Map<String, Object> serviceRequestProperties;
+    private Map<String, String> serviceRequestProperties;
 }

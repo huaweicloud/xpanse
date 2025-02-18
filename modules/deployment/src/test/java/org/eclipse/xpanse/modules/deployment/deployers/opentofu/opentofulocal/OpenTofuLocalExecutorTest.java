@@ -34,7 +34,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 class OpenTofuLocalExecutorTest {
     private static String workspace = "";
     @Mock private Map<String, String> mockEnv;
-    @Mock private Map<String, Object> mockVariables;
+    @Mock private Map<String, String> mockVariables;
     @InjectMocks private OpenTofuLocalExecutor openTofuLocalExecutor;
     @InjectMocks private DeploymentScriptsHelper deploymentScriptsHelper;
 
@@ -74,8 +74,8 @@ class OpenTofuLocalExecutorTest {
         final SystemCmdResult result = openTofuLocalExecutor.tfInit();
         // Verify the results
         assertTrue(result.isCommandSuccessful());
-        assertEquals(result.getCommandStdError(), "");
-        assertEquals(result.getCommandExecuted(), "tofu init -no-color");
+        assertEquals("", result.getCommandStdError());
+        assertEquals("tofu init -no-color", result.getCommandExecuted());
     }
 
     @Test

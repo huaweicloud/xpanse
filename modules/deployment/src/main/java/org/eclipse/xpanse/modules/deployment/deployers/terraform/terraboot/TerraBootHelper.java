@@ -53,7 +53,7 @@ public class TerraBootHelper {
     }
 
     /** Builds a map of all variables that must be passed to terraform executor. */
-    public Map<String, Object> getInputVariables(DeployTask deployTask, boolean isDeployRequest) {
+    public Map<String, String> getInputVariables(DeployTask deployTask, boolean isDeployRequest) {
         return this.deployEnvironments.getInputVariables(deployTask, isDeployRequest);
     }
 
