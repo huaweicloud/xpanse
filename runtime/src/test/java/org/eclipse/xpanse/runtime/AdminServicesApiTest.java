@@ -17,7 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.xpanse.modules.cache.consts.CacheConstants;
 import org.eclipse.xpanse.modules.models.common.enums.Csp;
 import org.eclipse.xpanse.modules.models.system.BackendSystemStatus;
-import org.eclipse.xpanse.modules.models.system.SystemStatus;
+import org.eclipse.xpanse.modules.models.system.StackStatus;
 import org.eclipse.xpanse.modules.models.system.enums.BackendSystemType;
 import org.eclipse.xpanse.modules.models.system.enums.DatabaseType;
 import org.eclipse.xpanse.modules.models.system.enums.HealthStatus;
@@ -59,10 +59,10 @@ class AdminServicesApiTest extends ApisTestCommon {
 
         // Verify the results
         assertEquals(response.getStatus(), HttpStatus.OK.value());
-        SystemStatus systemStatus =
-                objectMapper.readValue(response.getContentAsString(), SystemStatus.class);
-        assertEquals(HealthStatus.OK, systemStatus.getHealthStatus());
-        List<BackendSystemStatus> backendSystemStatuses = systemStatus.getBackendSystemStatuses();
+        StackStatus stackStatus =
+                objectMapper.readValue(response.getContentAsString(), StackStatus.class);
+        assertEquals(HealthStatus.OK, stackStatus.getHealthStatus());
+        List<BackendSystemStatus> backendSystemStatuses = stackStatus.getBackendSystemStatuses();
         assertEquals(BackendSystemType.values().length, backendSystemStatuses.size());
 
         assertTrue(
@@ -114,10 +114,10 @@ class AdminServicesApiTest extends ApisTestCommon {
 
         // Verify the results
         assertEquals(response.getStatus(), HttpStatus.OK.value());
-        SystemStatus systemStatus =
-                objectMapper.readValue(response.getContentAsString(), SystemStatus.class);
-        assertEquals(HealthStatus.OK, systemStatus.getHealthStatus());
-        List<BackendSystemStatus> backendSystemStatuses = systemStatus.getBackendSystemStatuses();
+        StackStatus stackStatus =
+                objectMapper.readValue(response.getContentAsString(), StackStatus.class);
+        assertEquals(HealthStatus.OK, stackStatus.getHealthStatus());
+        List<BackendSystemStatus> backendSystemStatuses = stackStatus.getBackendSystemStatuses();
         assertEquals(BackendSystemType.values().length, backendSystemStatuses.size());
         assertTrue(
                 backendSystemStatuses.stream()
